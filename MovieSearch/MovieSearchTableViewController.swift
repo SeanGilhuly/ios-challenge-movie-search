@@ -8,13 +8,26 @@
 
 import UIKit
 
-class MovieSearchTableViewController: UITableViewController {
+class MovieSearchTableViewController: UITableViewController, UISearchBarDelegate {
     
     var searchResultMovies = [Movie]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
+    }
+    
+    //MARK: - Search Bar Delegate Method
+    
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+        
+        let searchTerm = searchBar.text ?? ""
+        
+        MovieController.fetchMovies(searchTerm) { (movies) in
+            self.searchResultMovies = movies
+            self.tableView.reloadData()
+        }
     }
 
     // MARK: - Table view data source
