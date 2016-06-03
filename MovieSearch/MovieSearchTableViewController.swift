@@ -26,7 +26,10 @@ class MovieSearchTableViewController: UITableViewController, UISearchBarDelegate
         
         MovieController.fetchMovies(searchTerm) { (movies) in
             self.searchResultMovies = movies
-            self.tableView.reloadData()
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                self.tableView.reloadData()
+            })
         }
     }
 

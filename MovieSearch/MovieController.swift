@@ -10,22 +10,24 @@ import Foundation
 
 class MovieController {
     
-    static let baseURL = "https://api.themoviedb.org/3"
+    static let baseURL = "http://api.themoviedb.org/3"
     static let apiKey = "f83783c7c1e09d03fe09770bc9c4bf57"
     
     static func fetchMovies(searchTerm: String, completion: (movies: [Movie]) -> Void) {
         
-        var movieSearchURLString = MovieController.baseURL + "/search/movie/"
+        let escapedSearchTerm = searchTerm.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet())
+        
+        var movieSearchURLString = MovieController.baseURL + "/search/movie"
         
         movieSearchURLString = movieSearchURLString + "?" + "api_key=" + MovieController.apiKey
         
-        movieSearchURLString = movieSearchURLString + "+&" + "query=" + searchTerm
+        movieSearchURLString = movieSearchURLString + "&" + "query=" + escapedSearchTerm!
         
         if let url = NSURL(string: movieSearchURLString) {
             
             NetworkController.performRequestForURL(url, httpMethod: .Get, completion: { (data, error) in
                 if let data = data,
-                    let jsonAnyObject = try? NSJSONSerialization.JSONObjectWithData(data, options: []) {
+                    let jsonAnyObject = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) {
                     
                     if let jsonDictionary = jsonAnyObject as? [String:AnyObject],
                         let resultsArray = jsonDictionary["results"] as? [[String:AnyObject]] {
@@ -37,7 +39,6 @@ class MovieController {
                                 movies.append(movie)
                             }
                         }
-                    
                         completion(movies: movies)
                     
                     } else {
