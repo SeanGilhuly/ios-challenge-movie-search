@@ -8,27 +8,41 @@
 
 import UIKit
 
-class MovieSearchTableViewController: UITableViewController {
+class MovieSearchTableViewController: UITableViewController, UISearchBarDelegate {
 
+    var searchResults: [Movie] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-
     }
-
+    
+    // MARK: - Search Bar
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        let searchTerm = searchBar.text ?? ""
+        searchBar.autocapitalizationType = .Sentences
+        searchBar.resignFirstResponder()
+        
+        MovieController.getMovie(searchTerm) { (movies) in
+            self.searchResults = movies
+            
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                self.tableView.reloadData()
+            })
+        }
+    }
 
     // MARK: - Table view data source
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 0
+        return searchResults.count
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath)
+        let cell = tableView.dequeueReusableCellWithIdentifier("movieCell", forIndexPath: indexPath) as? CustomMovieTableViewCell ?? CustomMovieTableViewCell()
 
-        // Configure the cell...
-
+        let movie = searchResults[indexPath.row]
+        cell.updateWithMovie(movie)
+        
         return cell
     }
 }
