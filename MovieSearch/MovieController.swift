@@ -11,43 +11,32 @@ import Foundation
 class MovieController {
     
     static let baseURL = "http://api.themoviedb.org/3"
+    static let movieSearchUrl = MovieController.baseURL + "/search/movie"
+    static let imageBaseUrl = "http://image.tmdb.org/t/p/w500"
     static let apiKey = "f83783c7c1e09d03fe09770bc9c4bf57"
     
     static func fetchMovies(searchTerm: String, completion: (movies: [Movie]) -> Void) {
         
-        let escapedSearchTerm = searchTerm.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet())
-        
-        var movieSearchURLString = MovieController.baseURL + "/search/movie"
-        
-        movieSearchURLString = movieSearchURLString + "?" + "api_key=" + MovieController.apiKey
-        
-        movieSearchURLString = movieSearchURLString + "&" + "query=" + escapedSearchTerm!
-        
-        if let url = NSURL(string: movieSearchURLString) {
-            
-            NetworkController.performRequestForURL(url, httpMethod: .Get, completion: { (data, error) in
-                if let data = data,
-                    let jsonAnyObject = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) {
-                    
-                    if let jsonDictionary = jsonAnyObject as? [String:AnyObject],
-                        let resultsArray = jsonDictionary["results"] as? [[String:AnyObject]] {
-                    
-                        var movies = [Movie]()
-                        for resultDictionary in resultsArray {
-                        
-                            if let movie = Movie(jsonDictionary: resultDictionary) {
-                                movies.append(movie)
-                            }
-                        }
-                        completion(movies: movies)
-                    
-                    } else {
-                        completion(movies: [])
-                    }
-                }
-            })
-        } else {
+        guard let unwrappedURL = NSURL(string: movieSearchUrl) else {
             completion(movies: [])
+            return
         }
+        
+        let urlParameters = ["api_key":"\(apiKey)", "query":"\(searchTerm)"]
+        
+        NetworkController.performRequestForURL(unwrappedURL, httpMethod: .Get, urlParameters: urlParameters, completion: { (data, error) in
+            guard let data = data,
+                jsonAnyObject = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments),
+                jsonDictionary = jsonAnyObject as? [String:AnyObject],
+                resultsArray = jsonDictionary["results"] as? [[String:AnyObject]] else {
+                    
+                    completion(movies: [])
+                    return
+            }
+            
+            let movies = resultsArray.flatMap {Movie(jsonDictionary: $0)}
+            
+            completion(movies: movies)
+        })
     }
 }

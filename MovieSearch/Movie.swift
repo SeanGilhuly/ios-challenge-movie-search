@@ -14,29 +14,34 @@ class Movie {
     private let titleKey = "original_title"
     private let overviewKey = "overview"
     private let voteAverageKey = "vote_average"
+    private let posterPathKey = "poster_path"
     
     var id: Int
-    var title: String = ""
-    var overview: String = ""
-    var voteAverage: Float = 0.0
+    var title: String
+    var overview: String
+    var voteAverage: Float
+    var posterPath: String
     
-    init(id: Int, title: String, overview: String, voteAverage: Float) {
+    init(id: Int, title: String, overview: String, voteAverage: Float, posterPath: String) {
         self.id = id
         self.title = title
         self.overview = overview
         self.voteAverage = voteAverage
+        self.posterPath = posterPath
     }
     
     init?(jsonDictionary: [String:AnyObject]) {
         guard let id = jsonDictionary [idKey] as? Int,
         title = jsonDictionary [titleKey] as? String,
         overview = jsonDictionary [overviewKey] as? String,
-        voteAverage = jsonDictionary [voteAverageKey] as? Float else {
+        voteAverage = jsonDictionary [voteAverageKey] as? Float,
+        posterPath = jsonDictionary [posterPathKey] as? String else {
             return nil
         }
         self.id = id
         self.title = title
         self.overview = overview
         self.voteAverage = voteAverage
+        self.posterPath = posterPath
     }
 }
