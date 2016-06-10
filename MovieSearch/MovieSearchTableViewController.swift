@@ -19,7 +19,7 @@ class MovieSearchTableViewController: UITableViewController, UISearchBarDelegate
     // MARK: - Search Bar
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         let searchTerm = searchBar.text ?? ""
-        searchBar.autocapitalizationType = .Sentences
+        searchBar.autocapitalizationType = .Words
         searchBar.resignFirstResponder()
         
         MovieController.getMovie(searchTerm) { (movies) in
@@ -29,6 +29,7 @@ class MovieSearchTableViewController: UITableViewController, UISearchBarDelegate
                 self.tableView.reloadData()
             })
         }
+        searchBar.text = ""
     }
 
     // MARK: - Table view data source

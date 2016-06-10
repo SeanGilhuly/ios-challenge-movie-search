@@ -33,8 +33,10 @@ class MovieController {
                     completion(movies: [])
                     return
             }
-            let movies = resultsArray.flatMap {Movie(dictionary: $0)}
-            completion(movies: movies)
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                let movies = resultsArray.flatMap {Movie(dictionary: $0)}
+                completion(movies: movies)
+            })
         }
     }
 }
